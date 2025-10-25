@@ -13,6 +13,7 @@ import { PatientProfile } from './pages/PatientProfile';
 import { RubikGamePage } from './pages/RubikGamePage';
 import { MirrorHub } from './pages/MirrorHub';
 import { MemoryMirror } from './components/mirrors/MemoryMirror';
+import { TryNowPage } from './pages/TryNowPage';
 
 type Page =
   | 'home'
@@ -20,6 +21,7 @@ type Page =
   | 'what-we-do'
   | 'login'
   | 'register'
+  | 'try-now'
   | 'institution-panel'
   | 'therapist-panel'
   | 'patient-profile'
@@ -67,6 +69,8 @@ function AppContent() {
         return <LoginPage onNavigate={handleNavigate} />;
       case 'register':
         return <RegisterPage onNavigate={handleNavigate} />;
+      case 'try-now':
+        return <TryNowPage onNavigate={handleNavigate} />;
       case 'institution-panel':
         return <InstitutionPanel onNavigate={handleNavigate} />;
       case 'therapist-panel':

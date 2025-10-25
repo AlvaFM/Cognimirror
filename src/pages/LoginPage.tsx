@@ -114,7 +114,7 @@ export const LoginPage = ({ onNavigate }: LoginPageProps) => {
               type="submit"
               className="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all transform hover:scale-[1.02] shadow-lg"
             >
-              Iniciar Sesión
+              Pruébalo Ahora
             </button>
           </form>
 
@@ -125,7 +125,7 @@ export const LoginPage = ({ onNavigate }: LoginPageProps) => {
                 onClick={() => onNavigate('register')}
                 className="text-blue-600 hover:text-blue-700 font-semibold"
               >
-                Crear Usuario
+                Pruébalo Ahora
               </button>
             </p>
           </div>

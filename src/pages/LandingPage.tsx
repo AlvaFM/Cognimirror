@@ -26,18 +26,13 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <button
-                onClick={() => onNavigate('register')}
+                onClick={() => onNavigate('try-now')}
                 className="px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2"
               >
-                <span>Crear Usuario</span>
+                <span>Pruébalo Ahora</span>
                 <ArrowRight className="w-5 h-5" />
               </button>
-              <button
-                onClick={() => onNavigate('login')}
-                className="px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg border-2 border-blue-600 hover:bg-blue-50 transition-all"
-              >
-                Iniciar Sesión
-              </button>
+             
             </div>
           </div>
 
@@ -78,7 +73,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             </h2>
             <div className="w-20 h-1 bg-blue-600 mx-auto rounded-full"></div>
             <p className="text-lg text-gray-600 leading-relaxed">
-              Cogntech es una plataforma educativa con propósito social, dedicada a mejorar
+              <span className="font-semibold text-purple-600">CogniMirror</span> es una plataforma educativa con propósito social, dedicada a mejorar
               la calidad de vida de niños con Trastorno del Espectro Autista (TEA) y
               Trastorno por Déficit de Atención e Hiperactividad (TDAH).
             </p>
@@ -218,7 +213,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                 fomentamos su autonomía y autoestima a través del juego.
               </p>
               <button
-                onClick={() => onNavigate('register')}
+                onClick={() => onNavigate('try-now')}
                 className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all inline-flex items-center space-x-2"
               >
                 <span>Comienza Hoy</span>

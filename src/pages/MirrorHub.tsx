@@ -150,38 +150,6 @@ export const MirrorHub = ({ onNavigate, userName }: MirrorHubProps) => {
         onNavigate={onNavigate}
         type={dialogType}
       />
-
-      {/* Sección de Diagnóstico - Solo en desarrollo */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="fixed bottom-4 left-4 bg-gray-900 border border-gray-700 rounded-lg p-3 text-white text-xs space-y-2 max-w-xs">
-          <div className="font-bold text-yellow-400"> DIAGNÓSTICO API</div>
-          <button
-            onClick={async () => {
-              try {
-                // Probar conexión simple con Gemini usando Firebase AI SDK
-                const ai = getAI(app, { backend: new GoogleAIBackend() });
-                const model = getGenerativeModel(ai, { model: 'gemini-1.5-flash' });
-                
-                const result = await model.generateContent('Di "Hola" en español.');
-                const response = result.response;
-                const text = response.text();
-                
-                console.log('✅ Gemini AI SDK funciona:', text);
-                alert(`API Gemini: ✅ FUNCIONA\n\nRespuesta: ${text}`);
-              } catch (error) {
-                console.error('❌ Error con Gemini AI SDK:', error);
-                alert(`API Gemini: ❌ FALLA\n\nError: ${error.message}`);
-              }
-            }}
-            className="w-full px-2 py-1 bg-purple-600 hover:bg-purple-700 rounded text-xs font-medium"
-          >
-            Probar API Gemini
-          </button>
-          <div className="text-gray-400 text-xs">
-            API Key actual: {geminiConfig.apiKey.substring(0, 20)}...
-          </div>
-        </div>
-      )}
     </div>
   );
 };

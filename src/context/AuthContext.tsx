@@ -19,6 +19,7 @@ interface AuthContextType {
   getPatientsByTherapist: (therapistId: string) => Patient[];
   getTherapistsByInstitution: (institutionId: string) => User[];
   getAllPatients: () => Patient[];
+  quickTry: (name: string, age: number) => string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -147,6 +148,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return allUsers.filter((u) => u.type === 'paciente') as Patient[];
   };
 
+  // Crear paciente temporal para flujo "Pruébalo ahora"
+  const quickTry = (name: string, age: number): string => {
+    const newPatient: Patient = {
+      id: `pat-${Date.now()}`,
+      email: '',
+      password: '',
+      type: 'paciente',
+      name,
+      parentEmails: [],
+      therapistId: currentUser?.id || '',
+      institutionId: currentUser?.institutionId,
+      age,
+      diagnosis: [],
+      progress: 0,
+      achievements: [],
+      sessions: [],
+      createdAt: new Date(),
+    };
+
+    setAllUsers([...allUsers, newPatient]);
+    setSelectedPatient(newPatient);
+    setCurrentUser(newPatient);
+    setGameMode('juego');
+    return newPatient.id;
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -164,6 +191,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         getPatientsByTherapist,
         getTherapistsByInstitution,
         getAllPatients,
+        quickTry,
       }}
     >
       {children}

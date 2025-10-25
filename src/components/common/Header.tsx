@@ -66,16 +66,10 @@ export const Header = ({ onNavigate, currentPage }: HeaderProps) => {
                   Qué Hacemos
                 </button>
                 <button
-                  onClick={() => onNavigate('login')}
-                  className="px-4 py-2 text-blue-600 font-medium hover:bg-blue-50 rounded-lg transition-colors"
-                >
-                  Iniciar Sesión
-                </button>
-                <button
-                  onClick={() => onNavigate('register')}
+                  onClick={() => onNavigate('try-now')}
                   className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  Crear Usuario
+                  Pruébalo ahora
                 </button>
               </>
             ) : (
@@ -136,21 +130,12 @@ export const Header = ({ onNavigate, currentPage }: HeaderProps) => {
                 </button>
                 <button
                   onClick={() => {
-                    onNavigate('login');
-                    setIsMenuOpen(false);
-                  }}
-                  className="block w-full text-left px-4 py-2 text-blue-600 font-medium hover:bg-blue-50 rounded-lg"
-                >
-                  Iniciar Sesión
-                </button>
-                <button
-                  onClick={() => {
-                    onNavigate('register');
+                    onNavigate('try-now');
                     setIsMenuOpen(false);
                   }}
                   className="block w-full text-left px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700"
                 >
-                  Crear Usuario
+                  Pruébalo ahora
                 </button>
               </>
             ) : (
