@@ -27,11 +27,12 @@ export const RubikGamePage = ({ onNavigate }: RubikGamePageProps) => {
       {/* Cubo 3D en iframe */}
       <div className="flex-1 relative">
         <iframe
-          src="/RubiksCube-threejs-master/RubiksCube-threejs-master/index.html"
+          src="/RubiksCube-threejs-master/index.html"
           title="Cubo Rubik 3D"
           className="w-full h-full border-0"
           style={{ minHeight: 'calc(100vh - 80px)' }}
           allow="accelerometer; gyroscope"
+          sandbox="allow-scripts allow-same-origin"
         />
       </div>
 

@@ -1,5 +1,75 @@
 //index.ts
 
+export type GameType = 'memory_mirror' | 'digit_span' | 'rubik_cube' | 'observer_dashboard';
+
+export interface ObservationEvent {
+  type: string;
+  timestamp: number;
+  data?: Record<string, any>;
+}
+
+export interface GameRound {
+  roundId: string;
+  startTime: number;
+  endTime?: number;
+  duration?: number;
+  correct: number;
+  incorrect: number;
+  skipped: number;
+  level?: number;
+  score?: number;
+  metadata?: Record<string, any>;
+}
+
+export interface ObservationSession {
+  sessionId: string;
+  observerId: string;
+  patientId: string;
+  startTime: number;
+  endTime?: number;
+  duration?: number;
+  game: GameType;
+  sessionType: 'observacion';
+  metrics: {
+    events: ObservationEvent[];
+    notes: string[];
+    rounds: GameRound[];
+    startTime: number;
+    endTime?: number;
+    duration?: number;
+    lastUpdated?: number;
+    stats?: {
+      totalRounds: number;
+      totalCorrect: number;
+      totalIncorrect: number;
+      totalSkipped: number;
+      accuracy: number;
+      averageTimePerRound: number;
+    };
+  };
+}
+
+export interface GameMetric {
+  gameName: string;
+  startTime: number;
+  endTime?: number;
+  duration?: number;
+  level?: number;
+  score?: number;
+  completed: boolean;
+}
+
+export interface TimeMetrics {
+  userId: string;
+  sessionId: string;
+  startTime: number;
+  endTime?: number;
+  totalDuration?: number;
+  games: GameMetric[];
+  pages: Record<string, number>;
+  timestamp: string;
+}
+
 export type UserType = 'institucional' | 'terapeuta' | 'paciente';
 
 export interface User {

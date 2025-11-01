@@ -14,29 +14,7 @@ import {
   orderBy,
   limit as firestoreLimit
 } from 'firebase/firestore';
-import { CognitiveSession, CognitiveProfile, AnalysisGameSession } from '../types';
-
-// Interfaces para métricas de tiempo
-interface TimeMetrics {
-  userId: string;
-  sessionId: string;
-  startTime: number;
-  endTime?: number;
-  totalDuration?: number;
-  games: GameMetric[];
-  pages: Record<string, number>;
-  timestamp: string;
-}
-
-interface GameMetric {
-  gameName: string;
-  startTime: number;
-  endTime?: number;
-  duration?: number;
-  level?: number;
-  score?: number;
-  completed: boolean;
-}
+import { CognitiveSession, CognitiveProfile, AnalysisGameSession, TimeMetrics, GameMetric } from '../types';
 
 // ============================================================================
 // FIREBASE CONFIG
@@ -241,15 +219,37 @@ export async function getAnalysisEvolutionStats(userId: string): Promise<{
     }
     
     const totalSessions = sessions.length;
-    const avgMaxSpan = sessions.reduce((sum, s) => sum + s.metrics.maxSpan, 0) / totalSessions;
-    const avgFluency = sessions.reduce((sum, s) => sum + s.metrics.cognitiveFluency, 0) / totalSessions;
-    const totalPersistence = sessions.reduce((sum, s) => sum + s.metrics.persistence, 0);
-    const avgErrorRate = sessions.reduce((sum, s) => sum + s.metrics.errorRate, 0) / totalSessions;
+    
+    // Filtrar sesiones que tienen GameMetrics (Memory Mirror)
+    const memorySessions = sessions.filter(s => 'maxSpan' in s.metrics);
+    const tetrisSessions = sessions.filter(s => 'finalScore' in s.metrics);
+    
+    // Calcular métricas para Memory Mirror
+    const avgMaxSpan = memorySessions.length > 0 
+      ? memorySessions.reduce((sum, s) => sum + (s.metrics as any).maxSpan, 0) / memorySessions.length 
+      : 0;
+      
+    const avgFluency = sessions.length > 0 
+      ? sessions.reduce((sum, s) => {
+          const fluency = 'cognitiveFluency' in s.metrics 
+            ? (s.metrics as any).cognitiveFluency 
+            : (s.metrics as any).piecesPerMinute * 10; // Aproximación para Tetris
+          return sum + fluency;
+        }, 0) / sessions.length 
+      : 0;
+      
+    const totalPersistence = memorySessions.length > 0 
+      ? memorySessions.reduce((sum, s) => sum + (s.metrics as any).persistence, 0) 
+      : 0;
+      
+    const avgErrorRate = memorySessions.length > 0 
+      ? memorySessions.reduce((sum, s) => sum + (s.metrics as any).errorRate, 0) / memorySessions.length 
+      : 0;
     
     const progression = sessions.map(s => ({
       date: new Date(s.startTime).toLocaleDateString('es-ES'),
-      maxSpan: s.metrics.maxSpan,
-      fluency: Math.round(s.metrics.cognitiveFluency)
+      maxSpan: 'maxSpan' in s.metrics ? (s.metrics as any).maxSpan : 0,
+      fluency: Math.round('cognitiveFluency' in s.metrics ? (s.metrics as any).cognitiveFluency : (s.metrics as any).piecesPerMinute * 10)
     })).reverse(); // Orden cronológico
     
     return {
@@ -270,6 +270,101 @@ export async function getAnalysisEvolutionStats(userId: string): Promise<{
       averageErrorRate: 0,
       progression: []
     };
+  }
+}
+
+// ============================================================================
+// FIRESTORE HELPERS - OBSERVATION SESSIONS
+// ============================================================================
+
+export interface ObservationSessionStats {
+  totalSessions: number;
+  totalDuration: number; // en milisegundos
+  averageDuration: number; // en milisegundos
+  sessionsByGame: Record<string, number>;
+  lastSessions: Array<{
+    sessionId: string;
+    startTime: number;
+    endTime: number;
+    duration: number;
+    game: string;
+  }>;
+}
+
+/**
+ * Obtiene estadísticas de todas las sesiones de observación de un paciente
+ */
+export async function getPatientObservationStats(patientId: string): Promise<ObservationSessionStats> {
+  try {
+    const sessionsRef = collection(db, 'observationSessions');
+    const q = query(
+      sessionsRef,
+      where('patientId', '==', patientId),
+      orderBy('startTime', 'desc')
+    );
+    
+    const querySnapshot = await getDocs(q);
+    const sessions: any[] = [];
+    let totalDuration = 0;
+    const gamesCount: Record<string, number> = {};
+    
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      const duration = (data.endTime || Date.now()) - data.startTime;
+      totalDuration += duration;
+      
+      sessions.push({
+        sessionId: doc.id,
+        startTime: data.startTime,
+        endTime: data.endTime || null,
+        duration,
+        game: data.game
+      });
+      
+      // Contar por tipo de juego
+      if (data.game) {
+        gamesCount[data.game] = (gamesCount[data.game] || 0) + 1;
+      }
+    });
+    
+    const totalSessions = sessions.length;
+    const averageDuration = totalSessions > 0 ? Math.round(totalDuration / totalSessions) : 0;
+    
+    return {
+      totalSessions,
+      totalDuration,
+      averageDuration,
+      sessionsByGame: gamesCount,
+      lastSessions: sessions.slice(0, 10) // Últimas 10 sesiones
+    };
+  } catch (error) {
+    console.error('Error al obtener estadísticas de observación:', error);
+    throw error;
+  }
+}
+
+/**
+ * Obtiene todas las sesiones de observación de un paciente
+ */
+export async function getPatientObservationSessions(patientId: string, limit: number = 50): Promise<any[]> {
+  try {
+    const sessionsRef = collection(db, 'observationSessions');
+    const q = query(
+      sessionsRef,
+      where('patientId', '==', patientId),
+      orderBy('startTime', 'desc'),
+      firestoreLimit(limit)
+    );
+    
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      duration: (doc.data().endTime || Date.now()) - doc.data().startTime
+    }));
+  } catch (error) {
+    console.error('Error al obtener sesiones de observación:', error);
+    throw error;
   }
 }
 

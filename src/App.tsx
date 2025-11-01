@@ -35,7 +35,8 @@ type Page =
   | 'memory-mirror'
   | 'tetris-game'
   | 'digit-span'
-  | 'observer-dashboard';
+  | 'observer-dashboard'
+  | 'enhanced-observer';
 
 function AppContent() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
@@ -144,6 +145,14 @@ function AppContent() {
             userName={currentUser?.name || 'Usuario'}
           />
         );
+      case 'enhanced-observer':
+        return (
+          <ObserverDashboard 
+            onNavigate={handleNavigate}
+            userId={currentUser?.id || 'demo-user'}
+            userName={currentUser?.name || 'Usuario'}
+          />
+        );
       default:
         return <LandingPage onNavigate={handleNavigate} />;
     }
@@ -154,7 +163,8 @@ function AppContent() {
     && currentPage !== 'mirror-hub' 
     && currentPage !== 'tetris-game'
     && currentPage !== 'digit-span'
-    && currentPage !== 'observer-dashboard';
+    && currentPage !== 'observer-dashboard'
+    && currentPage !== 'enhanced-observer';
 
   return (
     <div className="min-h-screen flex flex-col">

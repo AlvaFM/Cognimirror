@@ -1,8 +1,10 @@
 // ObserverDashboard.tsx - Panel del Observador (Vista para Padres/Tutores) - v2.0
 // Con Guía Educativa para Padres
-import { useState } from 'react';
-import { ArrowLeft, Brain, TrendingUp, Activity, Target, Zap } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowLeft, Brain, TrendingUp, Activity, Target, Zap, Clock, Calendar, User, BookOpen } from 'lucide-react';
 import { useAnalysisHistory } from '../context/AnalysisHistoryContext';
+import { metrics } from '../services/metrics';
+import { ObservationSession } from '../types';
 
 interface ObserverDashboardProps {
   onNavigate: (page: string) => void;
@@ -12,55 +14,64 @@ interface ObserverDashboardProps {
 
 export const ObserverDashboard = ({ onNavigate, userId, userName }: ObserverDashboardProps) => {
   const { gameHistory } = useAnalysisHistory();
-  const [selectedGame, setSelectedGame] = useState<'all' | 'memory_mirror_v1' | 'tetris_mirror_v1' | 'digit_span_v1'>('all');
+  const [selectedGame, setSelectedGame] = useState<'all' | 'memory_mirror' | 'digit_span' | 'observer_dashboard'>('all');
+  const [observationSessions, setObservationSessions] = useState<ObservationSession[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Filtrar SOLO las sesiones del usuario actual (el niño)
-  const userSessions = gameHistory.filter(session => session.userId === userId);
-  
-  // Aplicar filtro de juego
+  // Cargar sesiones de observación al montar el componente
+  useEffect(() => {
+    const loadObservationSessions = async () => {
+      try {
+        setIsLoading(true);
+        const sessions = await metrics.getObservationSessions(userId);
+        setObservationSessions(sessions);
+      } catch (err) {
+        console.error('Error cargando sesiones de observación:', err);
+        setError('No se pudieron cargar las sesiones de observación. Intente nuevamente.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadObservationSessions();
+  }, [userId]);
+
+  // Filtrar sesiones por tipo de juego
   const filteredSessions = selectedGame === 'all' 
-    ? userSessions 
-    : userSessions.filter(session => session.gameId === selectedGame);
+    ? observationSessions 
+    : observationSessions.filter(session => session.game === selectedGame);
 
-  // Calcular estadísticas del niño
-  const memoryMirrorSessions = filteredSessions.filter(s => s.gameId === 'memory_mirror_v1');
-  const digitSpanSessions = filteredSessions.filter(s => s.gameId === 'digit_span_v1');
-  
+  // Calcular estadísticas
   const stats = {
     totalSessions: filteredSessions.length,
-    totalGames: userSessions.length, // Todas las sesiones del niño
+    totalNotes: filteredSessions.reduce((sum, session) => sum + (session.metrics.notes?.length || 0), 0),
+    totalEvents: filteredSessions.reduce((sum, session) => sum + (session.metrics.events?.length || 0), 0),
     
-    // Mejor desempeño
-    bestMaxSpan: memoryMirrorSessions.length > 0
-      ? Math.max(...memoryMirrorSessions.map((s: any) => s.metrics.maxSpan || 0))
-      : 0,
+    // Duración total de todas las sesiones (en minutos)
+    totalDuration: filteredSessions.reduce((sum, session) => {
+      const duration = session.metrics.duration || 0;
+      return sum + (duration > 0 ? Math.round(duration / 60000) : 0); // Convertir a minutos
+    }, 0),
     
-    // Promedio Max Span
-    avgMaxSpan: memoryMirrorSessions.length > 0
-      ? memoryMirrorSessions.reduce((sum, s: any) => sum + (s.metrics.maxSpan || 0), 0) / memoryMirrorSessions.length
-      : 0,
+    // Última sesión
+    lastSession: filteredSessions.length > 0 
+      ? new Date(Math.max(...filteredSessions.map(s => s.metrics.startTime))).toLocaleDateString()
+      : 'Ninguna',
     
-    // Fluidez Cognitiva Promedio
-    avgCognitiveFluency: filteredSessions.length > 0
-      ? filteredSessions.reduce((sum, s: any) => sum + (s.metrics.cognitiveFluency || 0), 0) / filteredSessions.length
-      : 0,
-    
-    // Persistencia Total
-    totalPersistence: filteredSessions.reduce((sum, s: any) => sum + (s.metrics.persistence || 0), 0),
-    
-    // Auto-Corrección Promedio
-    avgSelfCorrection: filteredSessions.length > 0
-      ? filteredSessions.reduce((sum, s: any) => sum + (s.metrics.selfCorrectionIndex || 0), 0) / filteredSessions.length
-      : 0,
-    
-    // Tiempo total jugado (en minutos)
-    totalTimePlayed: filteredSessions.reduce((sum, s: any) => sum + (s.metrics.totalSessionTime || 0), 0) / 60,
+    // Promedio de duración de sesión (en minutos)
+    avgSessionDuration: filteredSessions.length > 0
+      ? Math.round((filteredSessions.reduce((sum, session) => {
+          const duration = session.metrics.duration || 0;
+          return sum + (duration > 0 ? duration : 0);
+        }, 0) / filteredSessions.length) / 60000 * 10) / 10 // Redondear a 1 decimal
+      : 0
   };
 
-  // Datos de progresión temporal
-  const progressionData = filteredSessions
-    .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
-    .slice(-10); // Últimas 10 sesiones
+  // Ordenar sesiones por fecha (más recientes primero)
+  const sortedSessions = [...filteredSessions].sort((a, b) => 
+    (b.metrics.startTime || 0) - (a.metrics.startTime || 0)
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
@@ -108,42 +119,54 @@ export const ObserverDashboard = ({ onNavigate, userId, userName }: ObserverDash
           </div>
         </div>
 
-        {/* Stats Cards */}
+        {/* Estadísticas Principales */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          {/* Total Sesiones */}
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
-            <div className="flex items-center justify-between mb-2">
-              <Brain className="w-8 h-8 opacity-80" />
-              <span className="text-3xl font-bold">{stats.totalSessions}</span>
+          <div className="bg-white p-6 rounded-xl shadow-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Sesiones de Observación</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.totalSessions}</p>
+              </div>
+              <div className="p-3 bg-blue-100 rounded-full">
+                <Activity className="w-6 h-6 text-blue-600" />
+              </div>
             </div>
-            <p className="text-sm opacity-90">Sesiones</p>
           </div>
 
-          {/* Tiempo Total Jugado */}
-          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
-            <div className="flex items-center justify-between mb-2">
-              <Activity className="w-8 h-8 opacity-80" />
-              <span className="text-3xl font-bold">{Math.round(stats.totalTimePlayed)}</span>
+          <div className="bg-white p-6 rounded-xl shadow-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Notas Registradas</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.totalNotes}</p>
+              </div>
+              <div className="p-3 bg-green-100 rounded-full">
+                <BookOpen className="w-6 h-6 text-green-600" />
+              </div>
             </div>
-            <p className="text-sm opacity-90">Minutos Totales</p>
           </div>
 
-          {/* Mejor Max Span */}
-          <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl shadow-lg p-6 text-white">
-            <div className="flex items-center justify-between mb-2">
-              <Target className="w-8 h-8 opacity-80" />
-              <span className="text-3xl font-bold">{stats.bestMaxSpan}</span>
+          <div className="bg-white p-6 rounded-xl shadow-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Duración Promedio</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.avgSessionDuration} <span className="text-lg text-gray-500">min</span></p>
+              </div>
+              <div className="p-3 bg-purple-100 rounded-full">
+                <Clock className="w-6 h-6 text-purple-600" />
+              </div>
             </div>
-            <p className="text-sm opacity-90">Mejor Max Span</p>
           </div>
 
-          {/* Fluidez Promedio */}
-          <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl shadow-lg p-6 text-white">
-            <div className="flex items-center justify-between mb-2">
-              <Zap className="w-8 h-8 opacity-80" />
-              <span className="text-3xl font-bold">{Math.round(stats.avgCognitiveFluency)}</span>
+          <div className="bg-white p-6 rounded-xl shadow-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Última Sesión</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.lastSession}</p>
+              </div>
+              <div className="p-3 bg-yellow-100 rounded-full">
+                <Calendar className="w-6 h-6 text-yellow-600" />
+              </div>
             </div>
-            <p className="text-sm opacity-90">Fluidez (ms)</p>
           </div>
         </div>
 
