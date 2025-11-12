@@ -9,6 +9,10 @@ export type CognitiveSummary = {
   fatigue: number;
   selfCorrectionRate: number;
   fluency: number;
+  scoreMax: number;
+  scoreAvg: number;
+  errorRate: number;
+  retryCount: number;
 };
 
 export type TrendPoint = {
@@ -23,6 +27,9 @@ export function useCognitiveMetrics(params: { userId: string; gameId?: string })
   const [error, setError] = useState<string | null>(null);
   const [summary, setSummary] = useState<CognitiveSummary | null>(null);
   const [trend, setTrend] = useState<TrendPoint[]>([]);
+  const [filteredSessionsCount, setFilteredSessionsCount] = useState<number>(0);
+  const [totalSessionsAll, setTotalSessionsAll] = useState<number>(0);
+  const [perGameCounts, setPerGameCounts] = useState<Record<string, number>>({});
   const unsubRef = useRef<() => void>();
 
   const filters = useMemo(() => ({ userId, gameId }), [userId, gameId]);
@@ -46,6 +53,7 @@ export function useCognitiveMetrics(params: { userId: string; gameId?: string })
       async (snap) => {
         const docs = snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
         const computed = computeFromSessions(docs);
+        setFilteredSessionsCount(docs.length);
         setSummary(computed.summary);
         setTrend(computed.trend);
         setLoading(false);
@@ -59,8 +67,10 @@ export function useCognitiveMetrics(params: { userId: string; gameId?: string })
           const fallback = await getDocs(query(sessionsRef, ...clauses));
           const docs = fallback.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
           const computed = computeFromSessions(docs);
+          setFilteredSessionsCount(docs.length);
           setSummary(computed.summary);
           setTrend(computed.trend);
+          setError(null);
         } catch (e: any) {
           setError(e?.message || 'query error');
         } finally {
@@ -88,11 +98,32 @@ export function useCognitiveMetrics(params: { userId: string; gameId?: string })
     };
   }, [userId, gameId]);
 
-  return { loading, error, metrics: summary, trend } as const;
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const qAll = query(collection(db, 'analysisGameSessions'), where('userId', '==', userId));
+        const snap = await getDocs(qAll);
+        if (!active) return;
+        setTotalSessionsAll(snap.size);
+        const counts: Record<string, number> = {};
+        snap.forEach((doc) => {
+          const g = (doc.data() as any).gameId || 'unknown';
+          counts[g] = (counts[g] || 0) + 1;
+        });
+        setPerGameCounts(counts);
+      } catch {}
+    })();
+    return () => {
+      active = false;
+    };
+  }, [userId]);
+
+  return { loading, error, metrics: summary, trend, filteredSessionsCount, totalSessions: totalSessionsAll, perGameCounts } as const;
 }
 
 function computeFromSessions(sessions: any[]) {
-  const sessionPoints: { accuracy: number; avgRT: number; maxSpan: number; date: string; selfCorrectionRate: number; fluency: number }[] = [];
+  const sessionPoints: { accuracy: number; avgRT: number; maxSpan: number; date: string; selfCorrectionRate: number; fluency: number; score?: number; gameId?: string; errorRate?: number }[] = [];
 
   sessions.forEach((s) => {
     const metrics = s.metrics || {};
@@ -138,10 +169,25 @@ function computeFromSessions(sessions: any[]) {
     if (typeof metrics.cognitiveFluency === 'number') fluency = metrics.cognitiveFluency;
     else fluency = Math.max(0, accuracy * 10 - (avgRT / 100));
 
-    sessionPoints.push({ accuracy, avgRT, maxSpan, date, selfCorrectionRate, fluency });
+    const score = typeof metrics.score === 'number' ? metrics.score : undefined;
+    const errorRate = typeof metrics.errorRate === 'number' ? metrics.errorRate : Math.max(0, 100 - accuracy);
+    sessionPoints.push({ accuracy, avgRT, maxSpan, date, selfCorrectionRate, fluency, score, gameId: s.gameId, errorRate });
   });
 
   const fatigue = computeSlope(sessionPoints.map((p) => p.accuracy));
+  const scores = sessionPoints.map((p) => p.score).filter((v): v is number => typeof v === 'number');
+  const scoreMax = scores.length ? Math.max(...scores) : 0;
+  const scoreAvg = scores.length ? safeAvg(scores) : 0;
+  const errorRate = safeAvg(sessionPoints.map((p) => p.errorRate || 0));
+
+  // reintentos: por juego dentro del set filtrado sum(count-1)
+  const byGame = new Map<string, number>();
+  sessionPoints.forEach((p) => {
+    const g = p.gameId || 'unknown';
+    byGame.set(g, (byGame.get(g) || 0) + 1);
+  });
+  let retryCount = 0;
+  byGame.forEach((count) => { retryCount += Math.max(0, count - 1); });
 
   const summary: CognitiveSummary = {
     accuracy: safeAvg(sessionPoints.map((p) => p.accuracy)),
@@ -150,6 +196,10 @@ function computeFromSessions(sessions: any[]) {
     fatigue,
     selfCorrectionRate: safeAvg(sessionPoints.map((p) => p.selfCorrectionRate)),
     fluency: safeAvg(sessionPoints.map((p) => p.fluency)),
+    scoreMax,
+    scoreAvg,
+    errorRate,
+    retryCount,
   };
 
   const trend = sessionPoints.map((p) => ({ date: p.date, accuracy: round(p.accuracy, 1), avgRT: Number((p.avgRT / 1000).toFixed(2)) }));
@@ -199,12 +249,16 @@ async function getCachedSummary(userId: string, gameId?: string) {
     if (s.exists()) {
       const d = s.data() as any;
       const res: CognitiveSummary = {
-        accuracy: d.accuracy || 0,
-        avgRT: d.avgRT || 0,
-        maxSpan: d.maxSpan || 0,
-        fatigue: d.fatigue || 0,
-        selfCorrectionRate: d.selfCorrectionRate || 0,
-        fluency: d.fluency || 0,
+        accuracy: d.accuracy ?? 0,
+        avgRT: d.avgRT ?? 0,
+        maxSpan: d.maxSpan ?? 0,
+        fatigue: d.fatigue ?? 0,
+        selfCorrectionRate: d.selfCorrectionRate ?? 0,
+        fluency: d.fluency ?? 0,
+        scoreMax: d.scoreMax ?? 0,
+        scoreAvg: d.scoreAvg ?? 0,
+        errorRate: d.errorRate ?? (typeof d.accuracy === 'number' ? Math.max(0, 100 - d.accuracy) : 0),
+        retryCount: d.retryCount ?? 0,
       };
       return res;
     }

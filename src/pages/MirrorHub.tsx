@@ -53,6 +53,15 @@ export const MirrorHub = ({ onNavigate, userName }: MirrorHubProps) => {
             <ArrowLeft className="w-5 h-5" />
             <span className="font-medium">Volver</span>
           </button>
+          {/* Botón para ver Analytics */}
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={() => onNavigate('analytics-dashboard')}
+              className="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg transition-all shadow"
+            >
+              Ver Analytics
+            </button>
+          </div>
           <div className="max-w-4xl mx-auto text-center space-y-6">
             <div className="flex items-center justify-center space-x-3 mb-4">
               <Brain className="w-16 h-16" />
