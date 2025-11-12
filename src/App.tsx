@@ -19,6 +19,7 @@ import { DigitSpanMirror } from './components/mirrors/DigitSpanMirror';
 import { ObserverDashboard } from './pages/ObserverDashboard';
 import { VoiceOnboardingWelcome } from './pages/VoiceOnboardingWelcome';
 import { metrics } from './services/metrics';
+import { AnalyticsDashboard } from './modules/analytics/AnalyticsDashboard';
 
 type Page =
   | 'home'
@@ -36,7 +37,8 @@ type Page =
   | 'tetris-game'
   | 'digit-span'
   | 'observer-dashboard'
-  | 'enhanced-observer';
+  | 'enhanced-observer'
+  | 'analytics-dashboard';
 
 function AppContent() {
   const [currentPage, setCurrentPage] = useState<Page>('try-now');
@@ -44,6 +46,14 @@ function AppContent() {
   const { addSession } = useAnalysisHistory(); // Hook para agregar sesiones al historial
 
   useEffect(() => {
+    // Permitir abrir el dashboard directamente via /dashboard
+    if (window.location.pathname === '/dashboard') {
+      setCurrentPage('analytics-dashboard');
+      if (currentUser) {
+        metrics.setUserId(currentUser.id);
+      }
+      return;
+    }
     if (currentUser) {
       // Establecer userId en el servicio de métricas
       metrics.setUserId(currentUser.id);
@@ -151,6 +161,14 @@ function AppContent() {
             onNavigate={handleNavigate}
             userId={currentUser?.id || 'demo-user'}
             userName={currentUser?.name || 'Usuario'}
+          />
+        );
+      case 'analytics-dashboard':
+        return (
+          <AnalyticsDashboard 
+            userId={currentUser?.id || 'demo-user'} 
+            userName={currentUser?.name || 'Usuario'}
+            onNavigate={handleNavigate}
           />
         );
       default:
