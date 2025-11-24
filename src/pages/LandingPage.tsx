@@ -1,6 +1,6 @@
 //LandingPage.tsx
 
-import { Brain, Target, Users, Award, ArrowRight, Gamepad2, LineChart, Heart, ArrowDown, ArrowUpRight, Database } from 'lucide-react';
+import { Brain, Target, Users, Award, ArrowRight, Gamepad2, LineChart, Heart, ArrowDown, ArrowUpRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 interface LandingPageProps {
@@ -74,6 +74,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                 </div>
               </div>
 
+              {/* COMENTADO - Botón Entrenamiento
               <div className="mt-12">
                 <button
                   onClick={() => onNavigate('firestore-training')}
@@ -83,6 +84,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                   <span>Entrenamiento</span>
                 </button>
               </div>
+              */}
 
             </div>
           </div>
@@ -313,32 +315,30 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            {/* Tarjeta 1: All In Chile 2025 */}
-            <div className="bg-gradient-to-br from-blue-50 to-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-blue-100 group flex flex-col h-full">
+            {/* Tarjeta 1: CITT Duoc UC */}
+            <div className="bg-gradient-to-br from-amber-50 to-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-amber-100 group flex flex-col h-full">
               <div className="w-24 h-24 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform overflow-hidden bg-white p-2 shadow-sm">
                 <img
-                  src="/images/logos/logo all in.png"
-                  alt="All In Chile 2025"
+                  src="/images/logos/logo citt.jpg"
+                  alt="Centro de Innovación y Transferencia Tecnológica CITT Duoc UC"
                   className="w-full h-full object-contain"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;
-                    target.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMxZDdlYmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTkgMTRjMS40OS0xLjQ2IDIuMzgtMy42NCAyLjM4LTZAOS4xMyAwLTQuNDUtNC4yNi0xNi0xMS4zOC0xNkM2LjI0IDIgMiA2LjI0IDIgMTJzNC4yNCAxMCA5LjUgMTBjMi4zMSAwIDQuNDEtLjg1IDYuMDQtMi4yN0wxMy41IDE1YTEuNSAxLjUgMCAxIDEtMi0yLjA3bDU4LTEuMzZtLTU4Ni0xLjY0bDU4Ni0xLjM2Ii8+PC9zdmc+';
+                    target.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmNTk1MWMiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTkgMTRjMS40OS0xLjQ2IDIuMzgtMy42NCAyLjM4LTZAOS4xMyA4QzIuODcgOCAwIDEyLjI0IDAgMThzNC4yNCAxMCA5LjUgMTBjMi4zMSAwIDQuNDEtLjg1IDYuMDQtMi4yN0wxMy41IDE1YTEuNSAxLjUgMCAxIDEtMi0yLjA3bTU4OC0xLjM2bS01ODYtMS42NGw1ODYtMS4zNiIvPjwvc3ZnPg==';
                   }}
                 />
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                <span translate="no" className="whitespace-nowrap">All In Chile 2025</span>
-              </h3>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Centro de Innovación y Transferencia Tecnológica CITT Duoc UC</h3>
               <p className="text-gray-600 text-sm mb-4">
-                <span className="text-purple-600 font-semibold">CogniMirror</span> fue seleccionado como uno de los <strong>100 mejores proyectos</strong> con "potencial de emprendimiento innovador" entre más de <strong>1,400 proyectos postulantes</strong>, en el prestigioso torneo nacional organizado por Duoc UC, Ruta IE y Santander X.
+                Centro de Innovación y Transferencia Tecnológica CITT Sede Puerto Montt. Aliado estratégico de nuestro proyecto. Su respaldo fue fundamental para la articulación y presentación de nuestra plataforma <span className="text-purple-600 font-semibold">CogniMirror</span> en la feria tecnológica del Colegio Da Vinci School, evento que constituyó nuestra primera validación con usuarios reales y de alto perfil.
               </p>
               <div className="mt-auto">
                 <a
-                  href="https://www.duoc.cl/allinchile/"
+                  href="https://www.instagram.com/citt_puertomontt/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 text-sm font-medium inline-flex items-center group-hover:underline"
+                  className="text-amber-600 hover:text-amber-800 text-sm font-medium inline-flex items-center group-hover:underline"
                 >
                   Saber más
                   <ArrowUpRight className="w-4 h-4 ml-1" />
@@ -346,38 +346,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               </div>
             </div>
 
-            {/* Tarjeta 2: Cooimpacta 2025 */}
-            <div className="bg-gradient-to-br from-green-50 to-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-green-100 group flex flex-col h-full">
-              <div className="w-24 h-24 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform overflow-hidden bg-white p-2 shadow-sm">
-                <img
-                  src="/images/logos/logo cooimpacta.png"
-                  alt="Cooimpacta 2025"
-                  className="w-full h-full object-contain"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.onerror = null;
-                    target.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiIxNmE5NzQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTkgMTRjMS40OS0xLjQ2IDIuMzgtMy42NCAyLjM4LTZAOS4xMyA4QzIuODcgOCAwIDEyLjI0IDAgMThzNC4yNCAxMCA5LjUgMTBjMi4zMSAwIDQuNDEtLjg1IDYuMDQtMi4yN0wxMy41IDE1YTEuNSAxLjUgMCAxIDEtMi0yLjA3bTU4OC0xLjM2bS01ODYtMS42NGw1ODYtMS4zNiIvPjwvc3ZnPg==';
-                  }}
-                />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Cooimpacta 2025</h3>
-              <p className="text-gray-600 text-sm mb-4">
-                Nuestro proyecto de hardware, <span className="text-green-600 font-semibold">CubeCoop</span>, fue <strong>seleccionado como uno de los 20 finalistas nacionales</strong> en el desafío de innovación cooperativa impulsado por la Fundación Coopeuch y Duoc UC, validando nuestro modelo de triple impacto.
-              </p>
-              <div className="mt-auto">
-                <a
-                  href="https://www.duoc.cl/cooimpacta/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-green-600 hover:text-green-800 text-sm font-medium inline-flex items-center group-hover:underline"
-                >
-                  Saber más
-                  <ArrowUpRight className="w-4 h-4 ml-1" />
-                </a>
-              </div>
-            </div>
-
-            {/* Tarjeta 3: Centro Terapéutico Armonía */}
+            {/* Tarjeta 2: Centro Terapéutico Armonía */}
             <div className="bg-gradient-to-br from-purple-50 to-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-purple-100 group flex flex-col h-full">
               <div className="w-24 h-24 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform overflow-hidden bg-white p-2 shadow-sm">
                 <img
@@ -408,30 +377,63 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               </div>
             </div>
 
-            {/* Tarjeta 4: CITT Duoc UC - Aliado Estratégico */}
-            <div className="bg-gradient-to-br from-amber-50 to-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-amber-100 group flex flex-col h-full">
+            {/* Tarjeta 3: Cooimpacta 2025 */}
+            <div className="bg-gradient-to-br from-green-50 to-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-green-100 group flex flex-col h-full">
               <div className="w-24 h-24 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform overflow-hidden bg-white p-2 shadow-sm">
                 <img
-                  src="/images/logos/logo citt.jpg"
-                  alt="Centro de Innovación y Transferencia Tecnológica CITT Duoc UC"
+                  src="/images/logos/logo cooimpacta.png"
+                  alt="Cooimpacta 2025"
                   className="w-full h-full object-contain"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;
-                    target.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmNTk1MWMiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTkgMTRjMS40OS0xLjQ2IDIuMzgtMy42NCAyLjM4LTZAOS4xMyA4QzIuODcgOCAwIDEyLjI0IDAgMThzNC4yNCAxMCA5LjUgMTBjMi4zMSAwIDQuNDEtLjg1IDYuMDQtMi4yN0wxMy41IDE1YTEuNSAxLjUgMCAxIDEtMi0yLjA3bTU4OC0xLjM2bS01ODYtMS42NGw1ODYtMS4zNiIvPjwvc3ZnPg==';
+                    target.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiIxNmE5NzQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTkgMTRjMS40OS0xLjQ2IDIuMzgtMy42NCAyLjM4LTZAOS4xMyA4QzIuODcgOCAwIDEyLjI0IDAgMThzNC4yNCAxMCA5LjUgMTBjMi4zMSAwIDQuNDEtLjg1IDYuMDQtMi4yN0wxMy41IDE1YTEuNSAxLjUgMCAxIDEtMi0yLjA3bTU4OC0xLjM2bS01ODYtMS42NGw1ODYtMS4zNiIvPjwvc3ZnPg==';
                   }}
                 />
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Centro de Innovación y Transferencia Tecnológica CITT Duoc UC</h3>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Cooimpacta 2025</h3>
               <p className="text-gray-600 text-sm mb-4">
-                Centro de Innovación y Transferencia Tecnológica CITT Sede Puerto Montt. Aliado estratégico de nuestro proyecto. Su respaldo fue fundamental para la articulación y presentación de nuestra plataforma <span className="text-purple-600 font-semibold">CogniMirror</span> en la feria tecnológica del Colegio Da Vinci School, evento que constituyó nuestra primera validación con usuarios reales y de alto perfil.
+                Nuestro proyecto de hardware, <span className="text-green-600 font-semibold">CubeCoop</span>, fue <strong>seleccionado como uno de los 20 finalistas nacionales</strong> en el desafío de innovación cooperativa impulsado por la Fundación Coopeuch y Duoc UC, validando nuestro modelo de triple impacto.
               </p>
               <div className="mt-auto">
                 <a
-                  href="https://www.instagram.com/citt_puertomontt/"
+                  href="https://www.duoc.cl/cooimpacta/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-amber-600 hover:text-amber-800 text-sm font-medium inline-flex items-center group-hover:underline"
+                  className="text-green-600 hover:text-green-800 text-sm font-medium inline-flex items-center group-hover:underline"
+                >
+                  Saber más
+                  <ArrowUpRight className="w-4 h-4 ml-1" />
+                </a>
+              </div>
+            </div>
+
+            {/* Tarjeta 4: All In Chile 2025 */}
+            <div className="bg-gradient-to-br from-blue-50 to-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-blue-100 group flex flex-col h-full">
+              <div className="w-24 h-24 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform overflow-hidden bg-white p-2 shadow-sm">
+                <img
+                  src="/images/logos/logo all in.png"
+                  alt="All In Chile 2025"
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null;
+                    target.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMxZDdlYmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTkgMTRjMS40OS0xLjQ2IDIuMzgtMy42NCAyLjM4LTZAOS4xMyAwLTQuNDUtNC4yNi0xNi0xMS4zOC0xNkM2LjI0IDIgMiA2LjI0IDIgMTJzNC4yNCAxMCA5LjUgMTBjMi4zMSAwIDQuNDEtLjg1IDYuMDQtMi4yN0wxMy41IDE1YTEuNSAxLjUgMCAxIDEtMi0yLjA3bDU4LTEuMzZtLTU4Ni0xLjY0bDU4Ni0xLjM2Ii8+PC9zdmc+';
+                  }}
+                />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                <span translate="no" className="whitespace-nowrap">All In Chile 2025</span>
+              </h3>
+              <p className="text-gray-600 text-sm mb-4">
+                <span className="text-purple-600 font-semibold">CogniMirror</span> fue seleccionado como uno de los <strong>100 mejores proyectos</strong> con "potencial de emprendimiento innovador" entre más de <strong>1,400 proyectos postulantes</strong>, en el prestigioso torneo nacional organizado por Duoc UC, Ruta IE y Santander X.
+              </p>
+              <div className="mt-auto">
+                <a
+                  href="https://www.duoc.cl/allinchile/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 text-sm font-medium inline-flex items-center group-hover:underline"
                 >
                   Saber más
                   <ArrowUpRight className="w-4 h-4 ml-1" />

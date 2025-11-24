@@ -1,7 +1,7 @@
 //PatientProfile.tsx
 
 import { useState } from 'react';
-import { Eye, Gamepad2, Lock, Trophy, Sparkles, BarChart3, Clock, Brain } from 'lucide-react';
+import { Eye, Gamepad2, Lock, Trophy, Sparkles, Brain } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { MetricsViewer } from '../components/common/MetricsViewer';
 
@@ -187,7 +187,11 @@ export const PatientProfile = ({ onNavigate }: PatientProfileProps) => {
                 <h2 className="text-2xl font-bold text-gray-900">Mi Progreso</h2>
                 <div className="text-right">
                   <p className="text-3xl font-bold text-yellow-600">
-                    {selectedPatient.progress}%
+                    {(() => {
+                      // Calculate progress based on games tried (25% per game out of 4 games)
+                      const gamesPlayed = new Set(selectedPatient.sessions.map(s => s.gameType)).size;
+                      return Math.min(gamesPlayed * 25, 100);
+                    })()}%
                   </p>
                   <p className="text-sm text-gray-600">Completado</p>
                 </div>
@@ -195,12 +199,17 @@ export const PatientProfile = ({ onNavigate }: PatientProfileProps) => {
               <div className="w-full bg-gray-200 rounded-full h-4">
                 <div
                   className="bg-gradient-to-r from-yellow-400 to-orange-400 h-4 rounded-full transition-all"
-                  style={{ width: `${selectedPatient.progress}%` }}
+                  style={{
+                    width: `${(() => {
+                      const gamesPlayed = new Set(selectedPatient.sessions.map(s => s.gameType)).size;
+                      return Math.min(gamesPlayed * 25, 100);
+                    })()}%`
+                  }}
                 ></div>
               </div>
             </div>
 
-            {/* Botón para ver métricas de tiempo */}
+            {/* Botón para ver métricas de tiempo - COMENTADO
             <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl shadow-lg p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -221,8 +230,9 @@ export const PatientProfile = ({ onNavigate }: PatientProfileProps) => {
                 </button>
               </div>
             </div>
+            */}
 
-            {/* Acceso al dashboard cognitivo */}
+            {/* Acceso al dashboard cognitivo - COMENTADO
             <div className="bg-white rounded-xl shadow-lg p-6 flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-bold text-gray-900 mb-1 flex items-center space-x-2">
@@ -240,6 +250,7 @@ export const PatientProfile = ({ onNavigate }: PatientProfileProps) => {
                 Ver Dashboard
               </button>
             </div>
+            */}
 
             {/* Botón destacado para MirrorHub */}
             <div className="bg-gradient-to-br from-purple-600 via-blue-600 to-purple-600 rounded-2xl shadow-2xl p-8 mb-8">
@@ -333,13 +344,13 @@ export const PatientProfile = ({ onNavigate }: PatientProfileProps) => {
             {/* Dashboards de Entrenamiento */}
             <div className="space-y-8">
               <EnhancedSessionDashboard
-                userId={selectedPatient.id}
-                userName={selectedPatient.name}
+                userId={viewDemoData ? 'pat-1' : selectedPatient.id}
+                userName={viewDemoData ? 'Lucas Martínez' : selectedPatient.name}
               />
 
               <GameStatisticsDashboard
-                userId={selectedPatient.id}
-                userName={selectedPatient.name}
+                userId={viewDemoData ? 'pat-1' : selectedPatient.id}
+                userName={viewDemoData ? 'Lucas Martínez' : selectedPatient.name}
               />
 
             </div>

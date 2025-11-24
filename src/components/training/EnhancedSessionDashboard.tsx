@@ -5,7 +5,7 @@ import { StatCard } from '../dashboard/StatCard';
 import { PersistenceChart } from '../dashboard/PersistenceChart';
 import { EvolutionChart } from '../dashboard/EvolutionChart';
 import { InsightCard } from '../dashboard/InsightCard';
-import { Target, Clock, TrendingUp, Trophy, Calendar, Zap, Info } from 'lucide-react';
+import { Target, Clock, TrendingUp, Trophy, Calendar, Zap, Info, ChevronDown } from 'lucide-react';
 import { demoSessions } from '../../data/demoData';
 
 interface SessionData {
@@ -30,6 +30,7 @@ interface EnhancedSessionDashboardProps {
 export const EnhancedSessionDashboard = ({ userId, userName, gameId }: EnhancedSessionDashboardProps) => {
     const [sessions, setSessions] = useState<SessionData[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showClinicalFoundations, setShowClinicalFoundations] = useState(false);
     // Initialize filter based on prop, but default to 'general' if not provided
     const [chartFilter, setChartFilter] = useState<'general' | 'memory_mirror' | 'digit_span' | 'compare'>(
         gameId === 'digit_span_v1' ? 'digit_span' :
@@ -159,9 +160,16 @@ export const EnhancedSessionDashboard = ({ userId, userName, gameId }: EnhancedS
         const total = (s.aciertos || 0) + (s.errores || 0);
         const precision = total > 0 ? ((s.aciertos || 0) / total) * 100 : 0;
 
+        // Format date for display
+        const sessionDate = s.fecha?.toDate ? s.fecha.toDate() : new Date();
+        const date = `${sessionDate.getDate()}/${sessionDate.getMonth() + 1}`;
+        const fullDate = sessionDate.toLocaleDateString();
+
         if (chartFilter === 'compare') {
             return {
                 name: `Sesión ${index + 1}`,
+                date,
+                fullDate,
                 level_memory: isMemory ? s.nivel_maximo : null,
                 level_digit: !isMemory ? s.nivel_maximo : null,
                 precision_memory: isMemory ? precision : null,
@@ -171,7 +179,9 @@ export const EnhancedSessionDashboard = ({ userId, userName, gameId }: EnhancedS
 
         return {
             name: `Sesión ${index + 1}`,
-            nivel: s.nivel_maximo,
+            date,
+            fullDate,
+            level: s.nivel_maximo,
             precision: precision
         };
     });
@@ -181,7 +191,41 @@ export const EnhancedSessionDashboard = ({ userId, userName, gameId }: EnhancedS
     let insightMessage = "¡Sigue entrenando para ver tu progreso!";
     let insightType: 'positive' | 'neutral' | 'attention' = 'neutral';
 
-    if (lastSession) {
+    // Enhanced insights for demo mode
+    if (userId === 'pat-1') {
+        // Calculate game-specific stats for cognitive profile
+        const memorySessions = statsSessions.filter(s => (s.gameId || 'memory_mirror') === 'memory_mirror' || s.gameId === 'memory_mirror_v1');
+        const digitSessions = statsSessions.filter(s => s.gameId === 'digit_span_v1');
+
+        const avgMemoryLevel = memorySessions.length > 0
+            ? memorySessions.reduce((sum, s) => sum + s.nivel_maximo, 0) / memorySessions.length
+            : 0;
+        const avgDigitLevel = digitSessions.length > 0
+            ? digitSessions.reduce((sum, s) => sum + s.nivel_maximo, 0) / digitSessions.length
+            : 0;
+
+        const recentSessions = statsSessions.slice(-10);
+        const oldSessions = statsSessions.slice(0, 10);
+        const recentAvgError = recentSessions.reduce((sum, s) => sum + s.tasa_error, 0) / recentSessions.length;
+        const oldAvgError = oldSessions.reduce((sum, s) => sum + s.tasa_error, 0) / oldSessions.length;
+        const errorImprovement = oldAvgError - recentAvgError;
+
+        // Determine cognitive strength
+        const strongerInMemory = avgMemoryLevel > avgDigitLevel;
+        const levelDifference = Math.abs(avgMemoryLevel - avgDigitLevel);
+
+        if (levelDifference > 1) {
+            if (strongerInMemory) {
+                insightMessage = `🎨 ¡Perfil Cognitivo Identificado! Lucas muestra una notable fortaleza en habilidades visuo-espaciales (Memory Mirror: nivel ${avgMemoryLevel.toFixed(1)}). Esto sugiere un pensamiento más visual y espacial, características comunes en arquitectos, diseñadores, artistas visuales e ingenieros. Su tasa de error ha mejorado ${errorImprovement.toFixed(1)}% en las últimas sesiones. ¡Destacable progreso desde el ${oldSessions[0].fecha?.toDate ? oldSessions[0].fecha.toDate().toLocaleDateString() : 'inicio'}!`;
+            } else {
+                insightMessage = `📚 ¡Perfil Cognitivo Identificado! Lucas destaca en procesamiento secuencial y memoria verbal (Digit Span: nivel ${avgDigitLevel.toFixed(1)}). Estas habilidades son fundamentales para escritores, poetas, lingüistas y profesiones que requieren pensamiento lógico-verbal. Su precisión ha mejorado ${errorImprovement.toFixed(1)}% desde las primeras sesiones. ¡Excelente evolución cognitiva!`;
+            }
+            insightType = 'positive';
+        } else {
+            insightMessage = `⚖️ ¡Perfil Balanceado! Lucas muestra un desarrollo equilibrado entre habilidades visuo-espaciales (Memory Mirror: ${avgMemoryLevel.toFixed(1)}) y procesamiento secuencial-verbal (Digit Span: ${avgDigitLevel.toFixed(1)}). Esta versatilidad cognitiva es excepcional y sugiere adaptabilidad en múltiples dominios. Ha reducido su tasa de error en ${errorImprovement.toFixed(1)}% en ${recentSessions.length} sesiones recientes. ¡Progreso sobresaliente mantenido durante ${Math.floor(statsSessions.length / 9)} meses!`;
+            insightType = 'positive';
+        }
+    } else if (lastSession) {
         if (lastSession.completada) {
             insightMessage = "¡Excelente trabajo! Has completado tu última sesión con éxito.";
             insightType = 'positive';
@@ -275,7 +319,7 @@ export const EnhancedSessionDashboard = ({ userId, userName, gameId }: EnhancedS
                 </div>
             </div>
 
-            {/* Explicación de Métricas */}
+            {/* Guía de Métricas Cognitivas - Siempre visible */}
             <div className="bg-blue-50 rounded-xl p-6 border border-blue-100">
                 <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center space-x-2">
                     <Info className="w-5 h-5 text-blue-600" />
@@ -285,8 +329,7 @@ export const EnhancedSessionDashboard = ({ userId, userName, gameId }: EnhancedS
                     <div>
                         <h4 className="font-semibold text-blue-800 mb-1">Persistencia</h4>
                         <p className="text-sm text-blue-700 mb-3">
-                            Medimos la capacidad del usuario para continuar intentando resolver un desafío a pesar de los errores.
-                            Se calcula observando el tiempo dedicado y el número de intentos tras un fallo antes de abandonar.
+                            Medimos la capacidad del usuario para continuar intentando resolver un desafío a pesar de los errores. Se calcula observando el tiempo dedicado y el número de intentos tras un fallo antes de abandonar.
                         </p>
 
                         <h4 className="font-semibold text-blue-800 mb-1">Tasa de Error</h4>
@@ -306,6 +349,119 @@ export const EnhancedSessionDashboard = ({ userId, userName, gameId }: EnhancedS
                         </p>
                     </div>
                 </div>
+            </div>
+
+            {/* Fundamentos Clínicos - Sección Colapsable */}
+            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 shadow-lg overflow-hidden">
+                <button
+                    onClick={() => setShowClinicalFoundations(!showClinicalFoundations)}
+                    className="w-full p-6 flex items-center justify-between hover:bg-blue-100 transition-colors"
+                >
+                    <h3 className="text-xl font-bold text-blue-900 flex items-center space-x-2">
+                        <Info className="w-6 h-6 text-blue-600" />
+                        <span>Fundamentos Clínicos - Evaluación Cognitiva</span>
+                    </h3>
+                    <ChevronDown
+                        className={`w-6 h-6 text-blue-600 transition-transform ${showClinicalFoundations ? 'rotate-180' : ''}`}
+                    />
+                </button>
+
+                {showClinicalFoundations && (
+                    <div className="p-6 pt-0 space-y-6">
+                        {/* Memory Mirror */}
+                        <div className="bg-white rounded-lg p-5 shadow-md border-l-4 border-purple-500">
+                            <div className="flex items-start space-x-3">
+                                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <span className="text-2xl">🔮</span>
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="font-bold text-purple-900 text-lg mb-2">MEMORY MIRROR - Test de Corsi Digital</h4>
+                                    <p className="text-sm text-gray-700 font-semibold mb-2">Base Científica: Evaluación de la Memoria de Trabajo Visoespacial</p>
+
+                                    <div className="mb-3">
+                                        <p className="text-sm font-semibold text-blue-800 mb-1">¿Qué evalúa?</p>
+                                        <p className="text-sm text-gray-700">
+                                            Mide la capacidad de la "Agenda Visoespacial" del cerebro. Es la habilidad para retener y manipular información sobre la posición de objetos en el espacio y sus secuencias temporales.
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <p className="text-sm font-semibold text-green-700">✓ Puntaje Alto:</p>
+                                        <p className="text-sm text-gray-700 ml-4">Indica una fuerte capacidad de retención visual y orientación espacial. Fundamental para el aprendizaje de matemáticas y geometría.</p>
+
+                                        <p className="text-sm font-semibold text-orange-700">⚠ Puntaje Bajo:</p>
+                                        <p className="text-sm text-gray-700 ml-4">Puede señalar déficits de atención o dificultades en el procesamiento no verbal. Común en perfiles con TDAH o discalculia.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Digit Span */}
+                        <div className="bg-white rounded-lg p-5 shadow-md border-l-4 border-blue-500">
+                            <div className="flex items-start space-x-3">
+                                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <span className="text-2xl">🔢</span>
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="font-bold text-blue-900 text-lg mb-2">DIGIT SPAN - El Bucle Fonológico</h4>
+                                    <p className="text-sm text-gray-700 font-semibold mb-2">Base Científica: Evaluación de la Memoria de Trabajo Verbal y Auditiva</p>
+
+                                    <div className="mb-3">
+                                        <p className="text-sm font-semibold text-blue-800 mb-1">¿Qué evalúa?</p>
+                                        <p className="text-sm text-gray-700">
+                                            Mide la capacidad del "Bucle Fonológico". Evalúa la atención auditiva sostenida y la capacidad de almacenamiento secuencial a corto plazo.
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <p className="text-sm font-semibold text-green-700">✓ Puntaje Alto:</p>
+                                        <p className="text-sm text-gray-700 ml-4">Refleja una excelente capacidad de concentración auditiva y procesamiento del lenguaje.</p>
+
+                                        <p className="text-sm text-gray-700 ml-4">Suele estar asociado a distractibilidad auditiva, dificultades en la comprensión lectora o procesamiento lento de instrucciones verbales.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Strategic Mirror */}
+                        <div className="bg-white rounded-lg p-5 shadow-md border-l-4 border-orange-500">
+                            <div className="flex items-start space-x-3">
+                                <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <span className="text-2xl">👑</span>
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="font-bold text-orange-900 text-lg mb-2">STRATEGIC MIRROR - Funciones Ejecutivas</h4>
+                                    <p className="text-sm text-gray-700 font-semibold mb-2">Base Científica: Evaluación de las Funciones Ejecutivas y Praxis Visomotora</p>
+
+                                    <div className="mb-3">
+                                        <p className="text-sm font-semibold text-blue-800 mb-1">¿Qué evalúa?</p>
+                                        <p className="text-sm text-gray-700">
+                                            Va más allá de la memoria; evalúa la Planificación y la Flexibilidad Cognitiva. Mide cómo el cerebro anticipa movimientos futuros (lóbulo frontal) y coordina la mano para ejecutarlos (corteza motora).
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <p className="text-sm font-semibold text-green-700">✓ Alta Persistencia:</p>
+                                        <p className="text-sm text-gray-700 ml-4">Indica resiliencia cognitiva y capacidad para tolerar la frustración ante tareas complejas.</p>
+
+                                        <p className="text-sm text-gray-700 ml-4">Indica una maduración de la planificación estratégica (pensar antes de actuar) versus el ensayo y error impulsivo.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Resumen Clínico Multimodal */}
+                        <div className="bg-gradient-to-r from-cyan-100 to-blue-100 rounded-lg p-5 border border-cyan-300">
+                            <h4 className="font-bold text-cyan-900 text-base mb-3 flex items-center space-x-2">
+                                <span className="text-lg">🏥</span>
+                                <span>Evaluación Multimodal</span>
+                            </h4>
+                            <p className="text-sm text-cyan-900 italic">
+                                Esta plataforma permite identificar fortalezas en el procesamiento visoespacial (Memory Mirror), verbal-auditivo (Digit Span), y ejecutivo (Strategic Mirror), facilitando un perfil cognitivo integral para orientar intervenciones personalizadas.
+                            </p>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Evolution Chart */}

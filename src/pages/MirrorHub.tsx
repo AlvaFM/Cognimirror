@@ -10,7 +10,7 @@ interface MirrorHubProps {
 
 export const MirrorHub = ({ onNavigate, userName }: MirrorHubProps) => {
   const { dialogType, closeDialog } = useCoachDialog();
-  
+
   const getMirrorStatus = (mirrorId: MirrorType): 'recommended' | 'advanced' | 'locked' => {
     if (mirrorId === 'memory_mirror_v1') return 'recommended';
     if (mirrorId === 'digit_span_v1') return 'recommended';
@@ -21,12 +21,12 @@ export const MirrorHub = ({ onNavigate, userName }: MirrorHubProps) => {
 
   const handleMirrorClick = (mirrorType: MirrorType) => {
     const status = getMirrorStatus(mirrorType);
-    
+
     if (status === 'locked') {
       // Próximamente
       return;
     }
-    
+
     if (mirrorType === 'memory_mirror_v1') {
       onNavigate('memory-mirror');
     } else if (mirrorType === 'digit_span_v1') {
@@ -53,15 +53,16 @@ export const MirrorHub = ({ onNavigate, userName }: MirrorHubProps) => {
             <ArrowLeft className="w-5 h-5" />
             <span className="font-medium">Volver</span>
           </button>
-          {/* Botón para ver Analytics */}
+          {/* COMENTADO - Botón para ver Analytics
           <div className="flex justify-end mb-4">
             <button
               onClick={() => onNavigate('analytics-dashboard')}
               className="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg transition-all shadow"
             >
-              Ver Analytics
+              demo
             </button>
           </div>
+          */}
           <div className="max-w-4xl mx-auto text-center space-y-6">
             <div className="flex items-center justify-center space-x-3 mb-4">
               <Brain className="w-16 h-16" />
@@ -85,17 +86,16 @@ export const MirrorHub = ({ onNavigate, userName }: MirrorHubProps) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 max-w-7xl mx-auto">
           {Object.values(MIRROR_CATALOG).map((mirror) => {
             const status = getMirrorStatus(mirror.id);
-            
+
             return (
               <div
                 key={mirror.id}
                 onClick={() => handleMirrorClick(mirror.id)}
                 className={`
                   relative rounded-2xl p-8 shadow-2xl transition-all duration-300
-                  ${
-                    status === 'recommended'
-                      ? 'bg-gradient-to-br ' + mirror.gradient + ' cursor-pointer transform hover:scale-110 ring-4 ring-yellow-400 ring-offset-4 ring-offset-gray-900 animate-pulse'
-                      : status === 'advanced'
+                  ${status === 'recommended'
+                    ? 'bg-gradient-to-br ' + mirror.gradient + ' cursor-pointer transform hover:scale-110 ring-4 ring-yellow-400 ring-offset-4 ring-offset-gray-900 animate-pulse'
+                    : status === 'advanced'
                       ? 'bg-gradient-to-br ' + mirror.gradient + ' opacity-70 cursor-pointer hover:opacity-90 transform hover:scale-105'
                       : 'bg-gradient-to-br ' + mirror.gradient + ' opacity-40 cursor-not-allowed'
                   }
@@ -109,8 +109,8 @@ export const MirrorHub = ({ onNavigate, userName }: MirrorHubProps) => {
                   </div>
                 )}
                 {status === 'advanced' && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-1 rounded-full text-xs font-bold shadow-lg">
-                    DESAFÍO EXPERTO
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-cyan-500 text-white px-4 py-1 rounded-full text-xs font-bold shadow-lg">
+                    demo
                   </div>
                 )}
                 {status === 'locked' && (
