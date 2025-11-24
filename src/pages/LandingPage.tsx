@@ -1,6 +1,6 @@
 //LandingPage.tsx
 
-import { Brain, Target, Users, Award, ArrowRight, Gamepad2, LineChart, Heart, ArrowDown, ArrowUpRight } from 'lucide-react';
+import { Brain, Users, Award, ArrowRight, Gamepad2, LineChart, Heart, ArrowDown, ArrowUpRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 interface LandingPageProps {
@@ -150,15 +150,10 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             </h2>
             <div className="w-20 h-1 bg-blue-600 mx-auto rounded-full"></div>
             <p className="text-lg text-gray-600 leading-relaxed">
-              <span className="font-semibold text-purple-600">CogniMirror</span> es una plataforma educativa con propósito social, dedicada a mejorar
-              la calidad de vida de niños con Trastorno del Espectro Autista (TEA) y
-              Trastorno por Déficit de Atención e Hiperactividad (TDAH).
+              <span className="font-semibold text-purple-600">CogniMirror</span> es el primer ecosistema de Inteligencia Cognitiva en Chile. No solo creamos juegos; democratizamos el acceso a la evaluación neuropsicológica de precisión. Nacimos para cerrar la brecha entre la ciencia clínica y el aula de clases, transformando procesos de evaluación subjetivos y lentos en datos objetivos, inmediatos y accionables. Nuestra misión es devolver la soberanía cognitiva a las personas, comenzando por potenciar el desarrollo de estudiantes en Programas de Integración (PIE) y pacientes en rehabilitación.
             </p>
             <p className="text-lg text-gray-600 leading-relaxed">
-              Creemos que cada niño tiene un potencial único que puede ser desarrollado a
-              través de metodologías innovadoras, gamificación y seguimiento personalizado.
-              Trabajamos en conjunto con instituciones educativas, terapeutas y familias
-              para crear un ecosistema de apoyo integral.
+
             </p>
           </div>
 
@@ -167,10 +162,9 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
                 <Brain className="w-8 h-8 text-blue-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-800">Innovación</h3>
+              <h3 className="text-xl font-semibold text-gray-800">Ciencia de Datos</h3>
               <p className="text-gray-600">
-                Metodologías basadas en evidencia científica y adaptadas a cada perfil
-                cognitivo.
+                Transformamos la interacción lúdica en métricas clínicas valiosas (Persistencia, Precisión, Memoria de Trabajo).
               </p>
             </div>
 
@@ -178,9 +172,9 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
                 <Users className="w-8 h-8 text-green-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-800">Colaboración</h3>
+              <h3 className="text-xl font-semibold text-gray-800">Tecnología Híbrida</h3>
               <p className="text-gray-600">
-                Conectamos familias, terapeutas e instituciones en un solo lugar.
+                Unimos el mundo físico (CubeCoop) con el digital para capturar una huella cognitiva completa.
               </p>
             </div>
 
@@ -188,9 +182,9 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto">
                 <Heart className="w-8 h-8 text-yellow-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-800">Compromiso</h3>
+              <h3 className="text-xl font-semibold text-gray-800">Accesibilidad</h3>
               <p className="text-gray-600">
-                Dedicados a hacer la diferencia en el desarrollo de cada niño.
+                Llevamos herramientas de estándar clínico a colegios y centros terapéuticos a una fracción del costo tradicional.
               </p>
             </div>
           </div>
@@ -205,8 +199,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             </h2>
             <div className="w-20 h-1 bg-blue-600 mx-auto rounded-full"></div>
             <p className="text-lg text-gray-600 leading-relaxed">
-              Ofrecemos herramientas interactivas de validación cognitiva que permiten a
-              los niños desarrollar habilidades mientras se divierten.
+              Desarrollamos una plataforma integral que convierte la evaluación cognitiva en una experiencia fluida y gamificada, eliminando el papeleo y la subjetividad.
             </p>
           </div>
 
@@ -214,16 +207,14 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
               <div className="flex items-start space-x-4">
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Gamepad2 className="w-6 h-6 text-blue-600" />
+                  <span className="text-2xl">🎮</span>
                 </div>
                 <div className="space-y-2">
                   <h3 className="text-xl font-semibold text-gray-800">
-                    Juegos Cognitivos
+                    Evaluación Clínica Gamificada
                   </h3>
                   <p className="text-gray-600">
-                    Actividades como el Cubo Rubik, Sudoku y Ajedrez adaptados para
-                    estimular la resolución de problemas, memoria de trabajo, planificación
-                    y flexibilidad cognitiva.
+                    Utilizamos protocolos validados científicamente (como el Test de Corsi y Digit Span) digitalizados en interfaces modernas (Memory Mirror). Esto permite medir funciones ejecutivas sin que el usuario sienta que está siendo examinado.
                   </p>
                 </div>
               </div>
@@ -232,15 +223,14 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
               <div className="flex items-start space-x-4">
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <LineChart className="w-6 h-6 text-green-600" />
+                  <span className="text-2xl">📊</span>
                 </div>
                 <div className="space-y-2">
                   <h3 className="text-xl font-semibold text-gray-800">
-                    Seguimiento Detallado
+                    Hardware Inteligente (CubeCoop)
                   </h3>
                   <p className="text-gray-600">
-                    Los terapeutas y padres pueden observar métricas en tiempo real:
-                    movimientos, tiempo, eficiencia y estrategias utilizadas por el niño.
+                    Integramos sensores en objetos tangibles, como el Cubo Rubik, para capturar datos motrices y de resolución de problemas en tiempo real, llevando la terapia más allá de la pantalla.
                   </p>
                 </div>
               </div>
@@ -249,15 +239,14 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
               <div className="flex items-start space-x-4">
                 <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Target className="w-6 h-6 text-yellow-600" />
+                  <span className="text-2xl">🎯</span>
                 </div>
                 <div className="space-y-2">
                   <h3 className="text-xl font-semibold text-gray-800">
-                    Personalización
+                    Insights Basados en IA
                   </h3>
                   <p className="text-gray-600">
-                    Adaptamos la experiencia según el perfil de cada niño (TEA, TDAH o
-                    ambos), ajustando dificultad, temas visuales y tipo de refuerzos.
+                    Nuestra plataforma no solo muestra números; procesa el rendimiento del usuario para entregar "Insights" automáticos a terapeutas y educadores, detectando patrones de fatiga, curvas de aprendizaje y picos de rendimiento al instante.
                   </p>
                 </div>
               </div>
@@ -266,13 +255,12 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
               <div className="flex items-start space-x-4">
                 <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Award className="w-6 h-6 text-red-600" />
+                  <span className="text-2xl">🏅</span>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-xl font-semibold text-gray-800">Gamificación</h3>
+                  <h3 className="text-xl font-semibold text-gray-800">Monitoreo de Progreso Real</h3>
                   <p className="text-gray-600">
-                    Sistema de recompensas con insignias, barras de progreso y logros que
-                    mantienen al niño motivado y comprometido con su desarrollo.
+                    Reemplazamos la "foto del momento" por una "película de la evolución". Terapeutas y padres pueden visualizar la trayectoria de mejora mediante gráficos de radar y tendencias históricas, facilitando la toma de decisiones basada en evidencia.
                   </p>
                 </div>
               </div>
@@ -285,9 +273,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                 Nuestro Impacto
               </h3>
               <p className="text-gray-600 mb-6">
-                Ayudamos a niños con TEA y TDAH a fortalecer habilidades como atención,
-                planificación, flexibilidad mental y resolución de problemas, mientras
-                fomentamos su autonomía y autoestima a través del juego.
+                Estamos redefiniendo el estándar de la educación especial y la rehabilitación. Al automatizar la captura de datos, liberamos a los profesionales de la carga administrativa para que se enfoquen en lo que mejor saben hacer: intervenir y transformar vidas.
               </p>
               <button
                 onClick={() => onNavigate('try-now')}
