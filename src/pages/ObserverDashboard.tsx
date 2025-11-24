@@ -1,6 +1,6 @@
 // ObserverDashboard.tsx - Panel del Observador (Vista para Padres/Tutores) - v2.1
 // Con Dashboards Avanzados, Mapa Cognitivo 3D y Guía Educativa
-import { ArrowLeft, Activity, Brain, Info } from 'lucide-react';
+import { ArrowLeft, Activity, Brain } from 'lucide-react';
 
 import { BrainWidget3D } from '../components/common/BrainWidget3D';
 import { EnhancedSessionDashboard } from '../components/training/EnhancedSessionDashboard';
@@ -50,39 +50,6 @@ export const ObserverDashboard = ({ onNavigate, userId, userName }: ObserverDash
             userId={userId}
             userName={userName}
           />
-
-          {/* Explicación de Métricas */}
-          <div className="bg-blue-50 rounded-xl p-6 border border-blue-100">
-            <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center space-x-2">
-              <Info className="w-5 h-5 text-blue-600" />
-              <span>Guía de Métricas Cognitivas</span>
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-semibold text-blue-800 mb-1">Persistencia</h4>
-                <p className="text-sm text-blue-700 mb-3">
-                  Medimos la capacidad del usuario para continuar intentando resolver un desafío a pesar de los errores.
-                  Se calcula observando el tiempo dedicado y el número de intentos tras un fallo antes de abandonar.
-                </p>
-
-                <h4 className="font-semibold text-blue-800 mb-1">Tasa de Error</h4>
-                <p className="text-sm text-blue-700">
-                  Porcentaje de intentos fallidos respecto al total. Una tasa alta no es necesariamente negativa si va acompañada de alta persistencia, indicando aprendizaje.
-                </p>
-              </div>
-              <div>
-                <h4 className="font-semibold text-blue-800 mb-1">Precisión</h4>
-                <p className="text-sm text-blue-700 mb-3">
-                  Exactitud en las respuestas. Refleja la calidad de la ejecución cognitiva y la atención al detalle.
-                </p>
-
-                <h4 className="font-semibold text-blue-800 mb-1">Puntaje Máximo (Max Span)</h4>
-                <p className="text-sm text-blue-700">
-                  El nivel más alto de complejidad alcanzado (ej. número de dígitos recordados). Indica la capacidad máxima de la memoria de trabajo en ese momento.
-                </p>
-              </div>
-            </div>
-          </div>
 
           <GameStatisticsDashboard
             userId={userId}

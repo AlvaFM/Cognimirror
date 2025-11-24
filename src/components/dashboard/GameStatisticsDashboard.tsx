@@ -3,6 +3,7 @@ import { collection, query, orderBy, onSnapshot, Timestamp } from 'firebase/fire
 import { db } from '../../data/firebase';
 import { Gamepad2, Trophy, Clock, ChevronDown, ChevronUp, RotateCcw, AlertCircle, Target, Zap } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { demoSessions } from '../../data/demoData';
 
 interface SessionData {
     id: string;
@@ -48,6 +49,13 @@ export const GameStatisticsDashboard = ({ userId, userName }: GameStatisticsDash
 
     useEffect(() => {
         if (!userId) return;
+
+        // Use demo data for Lucas (pat-1)
+        if (userId === 'pat-1') {
+            setSessions(demoSessions as SessionData[]);
+            setLoading(false);
+            return;
+        }
 
         const sessionsRef = collection(db, 'usuarios', userId, 'sesiones');
         const q = query(sessionsRef, orderBy('fecha', 'desc'));
