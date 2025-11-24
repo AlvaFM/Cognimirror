@@ -1,14 +1,13 @@
 //PatientProfile.tsx
 
-import { useState, useEffect } from 'react';
-import { Eye, Gamepad2, Lock, Trophy, TrendingUp, Clock, Target, Brain, Sparkles, BarChart3, Gamepad, Info, Filter, FileText } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useState } from 'react';
+import { Eye, Gamepad2, Lock, Trophy, Sparkles, BarChart3, Clock, Brain, Info } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { MetricsViewer } from '../components/common/MetricsViewer';
-import { cognitiveAnalytics, UserCognitiveMetrics, UserGameAnalysis } from '../services/cognitiveAnalytics';
-import { SessionTimeline, GameStatsSection } from '../components/common/CognitiveDashboard';
+
 import { BrainWidget3D } from '../components/common/BrainWidget3D';
-import { generateReport } from '../services/ReportGenerator';
+import { EnhancedSessionDashboard } from '../components/training/EnhancedSessionDashboard';
+import { GameStatisticsDashboard } from '../components/dashboard/GameStatisticsDashboard';
 
 interface PatientProfileProps {
   onNavigate: (page: string) => void;
@@ -22,48 +21,13 @@ export const PatientProfile = ({ onNavigate }: PatientProfileProps) => {
   const [showMetrics, setShowMetrics] = useState(false);
 
   // Estado para datos analíticos profundos
-  const [cognitiveMetrics, setCognitiveMetrics] = useState<UserCognitiveMetrics | null>(null);
-  const [gameAnalysis, setGameAnalysis] = useState<UserGameAnalysis | null>(null);
 
-  // Estado para filtro de juego en gráfico
-  const [selectedGameFilter, setSelectedGameFilter] = useState<string>('all');
-  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+
   const [viewDemoData, setViewDemoData] = useState(false);
 
-  const handleGenerateReport = async () => {
-    if (!selectedPatient) return;
-    setIsGeneratingReport(true);
-    try {
-      await generateReport('observer-dashboard', viewDemoData ? 'Lucas Martínez' : selectedPatient.name);
-    } catch (error) {
-      console.error('Error generating report:', error);
-    } finally {
-      setIsGeneratingReport(false);
-    }
-  };
 
-  useEffect(() => {
-    if (selectedPatient) {
-      const loadDeepAnalytics = async () => {
-        try {
-          const targetId = viewDemoData ? 'pat-1' : selectedPatient.id;
-          const targetName = viewDemoData ? 'Lucas Martínez' : selectedPatient.name;
 
-          console.log(`🔄 Loading analytics for: ${targetName} (${targetId})`);
 
-          const [metricsData, gameData] = await Promise.all([
-            cognitiveAnalytics.calculateUserMetrics(targetId, targetName),
-            cognitiveAnalytics.getGameSpecificAnalysis(targetId, targetName)
-          ]);
-          setCognitiveMetrics(metricsData);
-          setGameAnalysis(gameData);
-        } catch (error) {
-          console.error("Error loading deep analytics:", error);
-        }
-      };
-      loadDeepAnalytics();
-    }
-  }, [selectedPatient, viewDemoData]);
 
   if (!selectedPatient) {
     return (
@@ -97,41 +61,7 @@ export const PatientProfile = ({ onNavigate }: PatientProfileProps) => {
     (a) => !a.unlockedAt && a.progress
   );
 
-  const avgEfficiency = selectedPatient.sessions.length > 0
-    ? Math.round(
-      selectedPatient.sessions.reduce((sum, s) => sum + s.efficiency, 0) /
-      selectedPatient.sessions.length
-    )
-    : 0;
 
-  const totalTime = Math.round(
-    selectedPatient.sessions.reduce((sum, s) => sum + (s.duration || 0), 0) / 60
-  );
-
-  // Filtrar datos para el gráfico
-  const getFilteredChartData = () => {
-    let filteredSessions = selectedPatient.sessions;
-
-    if (selectedGameFilter !== 'all') {
-      filteredSessions = selectedPatient.sessions.filter(s => {
-        // Normalizar nombres de juegos para coincidir con el filtro
-        const gameType = s.gameType || '';
-        if (selectedGameFilter === 'Memory Mirror') return gameType.includes('memory');
-        if (selectedGameFilter === 'Tetris Mirror') return gameType.includes('tetris');
-        if (selectedGameFilter === 'Rubik Mirror') return gameType.includes('rubik');
-        if (selectedGameFilter === 'Digit Span') return gameType.includes('digit');
-        return true;
-      });
-    }
-
-    return filteredSessions.map((s, i) => ({
-      name: i + 1,
-      persistence: (s.metrics?.persistence as number) || Math.floor(Math.random() * 40) + 30,
-      errorRate: (s.metrics?.errorRate as number) || Math.floor(Math.random() * 40) + 10
-    }));
-  };
-
-  const chartData = getFilteredChartData();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-cyan-50 to-blue-50 pb-12">
@@ -157,26 +87,15 @@ export const PatientProfile = ({ onNavigate }: PatientProfileProps) => {
                   <button
                     onClick={() => setViewDemoData(!viewDemoData)}
                     className={`flex items-center space-x-2 px-4 py-3 rounded-lg font-semibold transition-all backdrop-blur-sm ${viewDemoData
-                        ? 'bg-yellow-500/20 text-yellow-200 hover:bg-yellow-500/30 border border-yellow-500/50'
-                        : 'bg-white/10 text-white hover:bg-white/20'
+                      ? 'bg-yellow-500/20 text-yellow-200 hover:bg-yellow-500/30 border border-yellow-500/50'
+                      : 'bg-white/10 text-white hover:bg-white/20'
                       }`}
                   >
                     <Sparkles className="w-5 h-5" />
                     <span>{viewDemoData ? 'Viendo Demo (Lucas)' : 'Ver Demo'}</span>
                   </button>
 
-                  <button
-                    onClick={handleGenerateReport}
-                    disabled={isGeneratingReport}
-                    className="flex items-center space-x-2 px-4 py-3 bg-white/20 text-white rounded-lg font-semibold hover:bg-white/30 transition-all backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isGeneratingReport ? (
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    ) : (
-                      <FileText className="w-5 h-5" />
-                    )}
-                    <span>{isGeneratingReport ? 'Generando...' : 'Generar Reporte'}</span>
-                  </button>
+
                 </>
               )}
               <button
@@ -409,239 +328,54 @@ export const PatientProfile = ({ onNavigate }: PatientProfileProps) => {
             </div>
           </div>
         ) : (
-          <div id="observer-dashboard" className="space-y-8">
-            {/* Header Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
-                <div className="flex items-center justify-between">
+          <div id="observer-dashboard" className="space-y-8 mt-10">
+
+            {/* Dashboards de Entrenamiento */}
+            <div className="space-y-8">
+              <EnhancedSessionDashboard
+                userId={selectedPatient.id}
+                userName={selectedPatient.name}
+              />
+
+              {/* Explicación de Métricas */}
+              <div className="bg-blue-50 rounded-xl p-6 border border-blue-100">
+                <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center space-x-2">
+                  <Info className="w-5 h-5 text-blue-600" />
+                  <span>Guía de Métricas Cognitivas</span>
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <p className="text-gray-600 text-sm font-medium">Sesiones Totales</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-1">
-                      {selectedPatient.sessions.length}
+                    <h4 className="font-semibold text-blue-800 mb-1">Persistencia</h4>
+                    <p className="text-sm text-blue-700 mb-3">
+                      Medimos la capacidad del usuario para continuar intentando resolver un desafío a pesar de los errores.
+                      Se calcula observando el tiempo dedicado y el número de intentos tras un fallo antes de abandonar.
+                    </p>
+
+                    <h4 className="font-semibold text-blue-800 mb-1">Tasa de Error</h4>
+                    <p className="text-sm text-blue-700">
+                      Porcentaje de intentos fallidos respecto al total. Una tasa alta no es necesariamente negativa si va acompañada de alta persistencia, indicando aprendizaje.
                     </p>
                   </div>
-                  <Target className="w-10 h-10 text-blue-100" />
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
-                <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-600 text-sm font-medium">Tiempo Total</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-1">{totalTime} min</p>
-                  </div>
-                  <Clock className="w-10 h-10 text-green-100" />
-                </div>
-              </div>
+                    <h4 className="font-semibold text-blue-800 mb-1">Precisión</h4>
+                    <p className="text-sm text-blue-700 mb-3">
+                      Exactitud en las respuestas. Refleja la calidad de la ejecución cognitiva y la atención al detalle.
+                    </p>
 
-              <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium">Eficiencia Media</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-1">{avgEfficiency}%</p>
-                  </div>
-                  <TrendingUp className="w-10 h-10 text-yellow-100" />
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-red-500">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium">Logros</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-1">
-                      {unlockedAchievements.length}
+                    <h4 className="font-semibold text-blue-800 mb-1">Puntaje Máximo (Max Span)</h4>
+                    <p className="text-sm text-blue-700">
+                      El nivel más alto de complejidad alcanzado (ej. número de dígitos recordados). Indica la capacidad máxima de la memoria de trabajo en ese momento.
                     </p>
                   </div>
-                  <Trophy className="w-10 h-10 text-red-100" />
                 </div>
               </div>
+
+              <GameStatisticsDashboard
+                userId={selectedPatient.id}
+                userName={selectedPatient.name}
+              />
+
             </div>
-
-            {/* ANÁLISIS COGNITIVO PROFUNDO */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-              {/* Gráfico de Persistencia vs Error Rate */}
-              <div className="lg:col-span-2 bg-white rounded-xl shadow-lg p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-900">Persistencia & Tasa de Error</h2>
-                    <p className="text-sm text-gray-500">Relación entre el esfuerzo sostenido y la precisión</p>
-                  </div>
-
-                  {/* Filtro de Juego */}
-                  <div className="flex items-center space-x-4">
-                    <div className="relative">
-                      <select
-                        value={selectedGameFilter}
-                        onChange={(e) => setSelectedGameFilter(e.target.value)}
-                        className="appearance-none bg-gray-50 border border-gray-300 text-gray-700 py-1 px-3 pr-8 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="all">General (Todos)</option>
-                        <option value="Memory Mirror">Memory Mirror</option>
-                        <option value="Tetris Mirror">Tetris Mirror</option>
-                        <option value="Rubik Mirror">Rubik Mirror</option>
-                        <option value="Digit Span">Digit Span</option>
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                        <Filter className="w-3 h-3" />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-2 text-sm">
-                      <div className="flex items-center">
-                        <div className="w-3 h-3 rounded-full bg-emerald-500 mr-2"></div>
-                        <span className="text-gray-600">Persistencia</span>
-                      </div>
-                      <div className="flex items-center">
-                        <div className="w-3 h-3 rounded-full bg-rose-500 mr-2"></div>
-                        <span className="text-gray-600">Error Rate</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="h-[300px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart
-                      data={chartData}
-                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF' }} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF' }} />
-                      <Tooltip
-                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="persistence"
-                        stroke="#10B981"
-                        strokeWidth={3}
-                        dot={{ r: 4, fill: '#10B981', strokeWidth: 2, stroke: '#fff' }}
-                        activeDot={{ r: 6 }}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="errorRate"
-                        stroke="#F43F5E"
-                        strokeWidth={3}
-                        dot={{ r: 4, fill: '#F43F5E', strokeWidth: 2, stroke: '#fff' }}
-                        activeDot={{ r: 6 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              {/* Insight Card & Key Metrics */}
-              <div className="space-y-6">
-                {/* Insight Card */}
-                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-100 shadow-sm">
-                  <div className="flex items-center space-x-2 mb-3">
-                    <Sparkles className="w-5 h-5 text-emerald-600" />
-                    <h3 className="font-bold text-emerald-900">Insight from Cognimirror</h3>
-                  </div>
-                  <p className="text-emerald-800 text-sm leading-relaxed">
-                    El usuario ha aumentado su persistencia y mantenido su puntaje máximo.
-                    Aunque la tasa de error fue más alta en esta sesión, esto sugiere que
-                    exploraron nuevas estrategias o presentaron fatiga. Su trayectoria general
-                    refleja una progresión positiva.
-                  </p>
-                </div>
-
-                {/* Key Metrics Cards */}
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-                    <p className="text-sm font-medium text-gray-500 mb-1">Puntaje Máximo (Max Span)</p>
-                    <div className="flex items-baseline space-x-2">
-                      <span className="text-3xl font-bold text-gray-900">
-                        {selectedPatient.sessions.length > 0 ? (selectedPatient.sessions[selectedPatient.sessions.length - 1].metrics?.maxSpan || 3) : 0}
-                      </span>
-                      <span className="text-sm font-medium text-emerald-600 flex items-center">
-                        <TrendingUp className="w-3 h-3 mr-1" />
-                        +1
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-400 mt-1">Memoria de trabajo</p>
-                  </div>
-
-                  <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-                    <p className="text-sm font-medium text-gray-500 mb-1">Precisión (Accuracy)</p>
-                    <div className="flex items-baseline space-x-2">
-                      <span className="text-3xl font-bold text-gray-900">
-                        {selectedPatient.sessions.length > 0 ? (100 - ((selectedPatient.sessions[selectedPatient.sessions.length - 1].metrics?.errorRate as number) || 0)).toFixed(0) : 0}%
-                      </span>
-                      <span className="text-sm font-medium text-emerald-600 flex items-center">
-                        <TrendingUp className="w-3 h-3 mr-1" />
-                        +12%
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-400 mt-1">vs. sesión anterior</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Explicación de Métricas */}
-            <div className="bg-blue-50 rounded-xl p-6 border border-blue-100">
-              <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center space-x-2">
-                <Info className="w-5 h-5 text-blue-600" />
-                <span>Guía de Métricas Cognitivas</span>
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-semibold text-blue-800 mb-1">Persistencia</h4>
-                  <p className="text-sm text-blue-700 mb-3">
-                    Medimos la capacidad del usuario para continuar intentando resolver un desafío a pesar de los errores.
-                    Se calcula observando el tiempo dedicado y el número de intentos tras un fallo antes de abandonar.
-                  </p>
-
-                  <h4 className="font-semibold text-blue-800 mb-1">Tasa de Error</h4>
-                  <p className="text-sm text-blue-700">
-                    Porcentaje de intentos fallidos respecto al total. Una tasa alta no es necesariamente negativa si va acompañada de alta persistencia, indicando aprendizaje.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-blue-800 mb-1">Precisión</h4>
-                  <p className="text-sm text-blue-700 mb-3">
-                    Exactitud en las respuestas. Refleja la calidad de la ejecución cognitiva y la atención al detalle.
-                  </p>
-
-                  <h4 className="font-semibold text-blue-800 mb-1">Puntaje Máximo (Max Span)</h4>
-                  <p className="text-sm text-blue-700">
-                    El nivel más alto de complejidad alcanzado (ej. número de dígitos recordados). Indica la capacidad máxima de la memoria de trabajo en ese momento.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* CRONOGRAMA DE SESIONES (NUEVO) */}
-            {cognitiveMetrics && cognitiveMetrics.evolution.length > 0 && (
-              <div className="bg-white rounded-xl shadow-lg p-6">
-                <div className="mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900 flex items-center space-x-2">
-                    <Clock className="w-6 h-6 text-cyan-600" />
-                    <span>Cronograma de Sesiones</span>
-                  </h2>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Historial detallado de cada sesión jugada, mostrando nivel alcanzado, juego y precisión.
-                  </p>
-                </div>
-                <SessionTimeline evolution={cognitiveMetrics.evolution} />
-              </div>
-            )}
-
-            {/* ESTADÍSTICAS POR JUEGO (NUEVO) */}
-            {gameAnalysis && gameAnalysis.gameStats.length > 0 && (
-              <div className="bg-white rounded-xl shadow-lg p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                  <Gamepad className="w-6 h-6 text-indigo-600" />
-                  <span>Estadísticas por Juego</span>
-                </h2>
-                <GameStatsSection gameAnalysis={gameAnalysis} />
-              </div>
-            )}
-
             {/* Cerebro 3D Amelia (Mantener) */}
             <div className="bg-gradient-to-br from-purple-50 via-blue-50 to-cyan-50 rounded-2xl shadow-2xl p-8 border-2 border-purple-200">
               <div className="flex items-center space-x-3 mb-6">
